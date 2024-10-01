@@ -1,7 +1,7 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  psql:
+  database:
     image: postgres:latest
     environment:
       POSTGRES_DB: ${DB_DATABASE}
@@ -11,6 +11,22 @@ services:
       - "${DB_PORT}:5432"
     volumes:
       - db_volume:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    environment:
+      PORT: ${SERVER_PORT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${SERVER_PORT}:9000"
+    depends_on:
+      - database
 
 volumes:
   db_volume:

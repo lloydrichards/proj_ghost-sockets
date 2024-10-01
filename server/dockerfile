@@ -7,8 +7,6 @@ COPY go.sum .
 COPY /cmd/ ./cmd
 COPY /internal/ ./internal
 
-ENV PORT=8080
-
 RUN go build -o main cmd/api/main.go
 
 ENTRYPOINT [ "/app/main" ]
