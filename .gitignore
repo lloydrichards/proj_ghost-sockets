@@ -31,3 +31,6 @@ server/main
 
 # OS X generated file
 .DS_Store
+
+# Docker
+db_volume/

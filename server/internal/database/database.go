@@ -39,6 +39,7 @@ var (
 )
 
 func New() Service {
+	fmt.Println("Creating new database connection...")
 	// Reuse Connection
 	if dbInstance != nil {
 		return dbInstance
@@ -51,6 +52,7 @@ func New() Service {
 	dbInstance = &service{
 		db: db,
 	}
+	fmt.Println("Connected to database:", database)
 	return dbInstance
 }
 
@@ -67,7 +69,6 @@ func (s *service) Health() map[string]string {
 	if err != nil {
 		stats["status"] = "down"
 		stats["error"] = fmt.Sprintf("db down: %v", err)
-		log.Fatalf(fmt.Sprintf("db down: %v", err)) // Log the error and terminate the program
 		return stats
 	}
 

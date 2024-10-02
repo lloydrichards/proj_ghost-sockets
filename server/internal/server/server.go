@@ -8,22 +8,23 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/gorilla/websocket"
 
 	"server/internal/database"
 )
 
 type Server struct {
-	port int
-
-	db database.Service
+	port  int
+	conns map[*websocket.Conn]bool
+	db    database.Service
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
-		port: port,
-
-		db: database.New(),
+		port:  port,
+		conns: make(map[*websocket.Conn]bool),
+		db:    database.New(),
 	}
 
 	// Declare Server config
