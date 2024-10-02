@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -10,17 +11,18 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	_ "github.com/joho/godotenv/autoload"
+	
 
 	"server/internal/database"
 )
 
 type State struct {
-	X      int  `json:"x"`
-	Y      int  `json:"y"`
+	X int `json:"x"`
+	Y int `json:"y"`
 }
 type Client struct {
 	Username string `json:"username"`
-	Online bool `json:"online"`
+	Online   bool   `json:"online"`
 	State
 }
 
@@ -48,6 +50,8 @@ func NewServer() *http.Server {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
+	log.Printf("Server listening on port %d", NewServer.port)
 
 	return server
 }
