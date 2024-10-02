@@ -49,10 +49,19 @@ func New() Service {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// check the connection
+	err = db.Ping()
+
+	if err != nil {
+		panic(err)
+	}
 	dbInstance = &service{
 		db: db,
 	}
 	fmt.Println("Connected to database:", database)
+
+	migrate(db)
+
 	return dbInstance
 }
 

@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	_ "github.com/joho/godotenv/autoload"
-	
 
 	"server/internal/database"
 )
@@ -21,8 +20,9 @@ type State struct {
 	Y int `json:"y"`
 }
 type Client struct {
-	Username string `json:"username"`
-	Online   bool   `json:"online"`
+	ID       uuid.UUID `json:"id"`
+	Username string    `json:"username"`
+	Online   bool      `json:"online"`
 	State
 }
 

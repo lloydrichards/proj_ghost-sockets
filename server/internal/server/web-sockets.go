@@ -19,7 +19,6 @@ var upgrader = websocket.Upgrader{
 
 func (s *Server) handleWSConnect(c *gin.Context) {
 	username := c.Query("username")
-	userId := uuid.New()
 
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -29,18 +28,11 @@ func (s *Server) handleWSConnect(c *gin.Context) {
 		return
 	}
 
-	log.Printf("new connection from %s (%s)\n", username, userId)
-	s.conns[conn] = true
-	s.hub[userId] = Client{
-		Username: username,
-		Online: true,
-		State: State{
-			X:      0,
-			Y:      0,
-		},
-	}
+	client := s.initClient(conn, username)
 
-	s.readMsgLoop(conn, userId)
+	s.readMsgLoop(conn, client.ID)
+
+	defer s.removeClient(conn, client.ID)
 
 }
 
@@ -58,11 +50,12 @@ func (s *Server) readMsgLoop(wc *websocket.Conn, userId uuid.UUID) {
 
 		// update the position of the user
 		s.hub[userId] = Client{
+			ID:       userId,
 			Username: s.hub[userId].Username,
-			Online: true,
+			Online:   true,
 			State: State{
-				X:      pos.X,
-				Y:      pos.Y,
+				X: pos.X,
+				Y: pos.Y,
 			},
 		}
 
@@ -81,4 +74,28 @@ func (s *Server) broadcastHub() {
 			delete(s.conns, conn)
 		}
 	}
+}
+
+func (s *Server) initClient(wc *websocket.Conn, username string) Client {
+	userId := uuid.New()
+
+	log.Printf("new connection from %s (%s)\n", username, userId)
+	s.conns[wc] = true
+	client := Client{
+		Username: username,
+		Online:   true,
+		State: State{
+			X: 0,
+			Y: 0,
+		},
+	}
+	s.hub[userId] = client
+
+	return client
+}
+
+func (s *Server) removeClient(wc *websocket.Conn, userId uuid.UUID) {
+	wc.Close()
+	delete(s.conns, wc)
+	delete(s.hub, userId)
 }
