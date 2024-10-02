@@ -7,15 +7,27 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/joho/godotenv/autoload"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	_ "github.com/joho/godotenv/autoload"
 
 	"server/internal/database"
 )
 
+type State struct {
+	X      int  `json:"x"`
+	Y      int  `json:"y"`
+}
+type Client struct {
+	Username string `json:"username"`
+	Online bool `json:"online"`
+	State
+}
+
 type Server struct {
 	port  int
 	conns map[*websocket.Conn]bool
+	hub   map[uuid.UUID]Client
 	db    database.Service
 }
 
@@ -24,6 +36,7 @@ func NewServer() *http.Server {
 	NewServer := &Server{
 		port:  port,
 		conns: make(map[*websocket.Conn]bool),
+		hub:   make(map[uuid.UUID]Client),
 		db:    database.New(),
 	}
 
