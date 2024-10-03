@@ -82,12 +82,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
           ))}
         </ul>
       </section>
-      <Cursor client onMove={handleMessages} className="z-50" />
-      {Object.entries(otherCursors).map(([username, { x, y }], idx) => (
-        <Cursor key={username} color={idx as 0} x={x} y={y}>
-          <p className="absolute top-0 left-8 text-foreground">{username}</p>
-        </Cursor>
-      ))}
+      <svg className="absolute size-full overflow-visible">
+        <Cursor client onMove={handleMessages} className="z-50" />
+        {Object.entries(otherCursors).map(([username, { x, y }], idx) => (
+          <Cursor key={username} color={idx as 0} x={x} y={y}>
+            <p>{username}</p>
+          </Cursor>
+        ))}
+      </svg>
     </div>
   );
 };

@@ -7,7 +7,7 @@ function App() {
 
   return (
     <main className="h-screen flex justify-center">
-      <section className="flex size-full px-8 max-w-screen-sm justify-center">
+      <section className="flex size-full max-w-screen-sm justify-center">
         {!username ? (
           <Login onSubmit={setUsername} />
         ) : (

@@ -2,26 +2,26 @@ import React, { ReactNode } from "react";
 import { useMousePosition } from "../../hooks/use-mouse-position";
 import { useThrottle } from "../../hooks/use-throttle";
 import { cva, VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const cursorVariants = cva("absolute size-6 rounded-full", {
   variants: {
     client: {
-      true: "border-2 border-primary",
+      true: "stroke-2 stroke-primary",
       false: "",
     },
     color: {
-      default: "bg-transparent",
-      0: "bg-[#1E90FF]",
-      1: "bg-[#9B59B6]",
-      2: "bg-[#00CED1]",
-      3: "bg-[#2ECC71]",
-      4: "bg-[#E67E22]",
-      5: "bg-[#E74C3C]",
-      6: "bg-[#F1C40F]",
-      7: "bg-[#95A5A6]",
-      8: "bg-[#D87093]",
-      9: "bg-[#3CB371]",
+      default: "fill-transparent",
+      0: "fill-[#1E90FF]",
+      1: "fill-[#9B59B6]",
+      2: "fill-[#00CED1]",
+      3: "fill-[#2ECC71]",
+      4: "fill-[#E67E22]",
+      5: "fill-[#E74C3C]",
+      6: "fill-[#F1C40F]",
+      7: "fill-[#95A5A6]",
+      8: "fill-[#D87093]",
+      9: "fill-[#3CB371]",
     },
   },
   defaultVariants: {
@@ -45,7 +45,6 @@ export const Cursor: React.FC<CursorProps> = ({
   x,
   y,
   color,
-  className,
   children,
 }) => {
   const mousePosition = useMousePosition();
@@ -60,16 +59,33 @@ export const Cursor: React.FC<CursorProps> = ({
   const yPos = y ?? throttlePosition.y ?? 0;
 
   return (
-    <div className={cn("fixed top-0 left-0 pointer-events-none", className)}>
-      <div
-        className={cursorVariants({ color, client })}
-        style={{
-          left: xPos - 12,
-          top: yPos - 12,
+    <>
+      <motion.circle
+        initial={{
+          cx: xPos - 24,
+          cy: yPos - 16,
         }}
+        animate={{
+          cx: xPos - 24,
+          cy: yPos - 16,
+        }}
+        r={12}
+        className={cursorVariants({ color, client })}
+      ></motion.circle>
+      <motion.foreignObject
+        initial={{
+          x: xPos - 8,
+          y: yPos - 28,
+        }}
+        animate={{
+          x: xPos - 8,
+          y: yPos - 28,
+        }}
+        width="100"
+        height="100"
       >
         {children}
-      </div>
-    </div>
+      </motion.foreignObject>
+    </>
   );
 };
