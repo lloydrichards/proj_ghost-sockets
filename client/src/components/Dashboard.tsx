@@ -16,6 +16,11 @@ const Payload = z.object({
       state: z.object({
         x: z.number(),
         y: z.number(),
+        vx: z.number(),
+        vy: z.number(),
+        spd: z.number(),
+        acc: z.number(),
+        ang: z.number(),
       }),
     })
   ),
@@ -23,7 +28,7 @@ const Payload = z.object({
 
 export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
   const [otherCursors, setOtherCursors] = React.useState<
-    Record<string, { x: number; y: number }>
+    Record<string, { x: number; y: number; vx: number; vy: number }>
   >({});
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
     `ws://${import.meta.env.SERVER_HOST ?? "localhost"}:9000/ws`,
@@ -59,7 +64,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
   const handleMessages = useCallback(
     (x: number, y: number) => {
       sendMessage(
-        JSON.stringify({ type: "update_position", payload: { x, y } })
+        JSON.stringify({
+          type: "update_position",
+          payload: { x, y, delta: 100 },
+        })
       );
     },
     [sendMessage]
@@ -73,10 +81,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
       </section>
       <section className="w-full flex flex-row-reverse mb-4">
         <ul>
-          {Object.entries(otherCursors).map(([username, { x, y }]) => (
+          {Object.entries(otherCursors).map(([username, state]) => (
             <li key={username}>
               <p>
-                {username} x: {x}, y: {y}
+                {username}
+                {"-> "}
+                {Object.entries(state)
+                  .map(([key, value]) => `${key}: ${value.toFixed(2)}`)
+                  .join("  ")}
               </p>
             </li>
           ))}
@@ -84,8 +96,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
       </section>
       <svg className="absolute size-full overflow-visible">
         <Cursor client onMove={handleMessages} className="z-50" />
-        {Object.entries(otherCursors).map(([username, { x, y }], idx) => (
-          <Cursor key={username} color={idx as 0} x={x} y={y}>
+        {Object.entries(otherCursors).map(([username, state], idx) => (
+          <Cursor key={username} color={idx as 0} {...state}>
             <p>{username}</p>
           </Cursor>
         ))}

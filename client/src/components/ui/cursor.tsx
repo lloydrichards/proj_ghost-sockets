@@ -35,6 +35,8 @@ type CursorProps = {
   client?: boolean;
   x?: number;
   y?: number;
+  vx?: number;
+  vy?: number;
   children?: ReactNode;
   className?: string;
 } & VariantProps<typeof cursorVariants>;
@@ -44,6 +46,8 @@ export const Cursor: React.FC<CursorProps> = ({
   client = false,
   x,
   y,
+  vx,
+  vy,
   color,
   children,
 }) => {
@@ -59,33 +63,33 @@ export const Cursor: React.FC<CursorProps> = ({
   const yPos = y ?? throttlePosition.y ?? 0;
 
   return (
-    <>
-      <motion.circle
+    <motion.g
+      initial={{
+        x: xPos,
+        y: yPos,
+      }}
+      animate={{
+        x: xPos,
+        y: yPos,
+      }}
+    >
+      <motion.line
         initial={{
-          cx: xPos - 24,
-          cy: yPos - 16,
+          x2: (vx ?? 0) * -50,
+          y2: (vy ?? 0) * -50,
         }}
         animate={{
-          cx: xPos - 24,
-          cy: yPos - 16,
+          x2: (vx ?? 0) * -50,
+          y2: (vy ?? 0) * -50,
         }}
-        r={12}
-        className={cursorVariants({ color, client })}
-      ></motion.circle>
-      <motion.foreignObject
-        initial={{
-          x: xPos - 8,
-          y: yPos - 28,
-        }}
-        animate={{
-          x: xPos - 8,
-          y: yPos - 28,
-        }}
-        width="100"
-        height="100"
-      >
+        x1={0}
+        y1={0}
+        className="stroke-2 stroke-primary"
+      ></motion.line>
+      <circle r={12} className={cursorVariants({ color, client })}></circle>
+      <foreignObject x={16} y={-12} width="100" height="100">
         {children}
-      </motion.foreignObject>
-    </>
+      </foreignObject>
+    </motion.g>
   );
 };

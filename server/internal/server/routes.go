@@ -13,7 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.GET("/health", s.healthHandler)
 
-	r.GET("/ws", s.manager.handleWSConnect)
+	r.GET("/ws", s.manager.initiateWSConnection)
 
 	return r
 }

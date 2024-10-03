@@ -11,8 +11,25 @@ import (
 type ClientList map[*Client]bool
 
 type State struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X   float64 `json:"x"`
+	Y   float64 `json:"y"`
+	Vx  float64 `json:"vx"`
+	Vy  float64 `json:"vy"`
+	Spd float64 `json:"spd"`
+	Acc float64 `json:"acc"`
+	Ang float64 `json:"ang"`
+}
+
+func NewState() State {
+	return State{
+		X:   0,
+		Y:   0,
+		Vx:  0,
+		Vy:  0,
+		Spd: 0,
+		Acc: 0,
+		Ang: 0,
+	}
 }
 
 type Client struct {
@@ -35,7 +52,7 @@ func NewClient(username string, conn *websocket.Conn, manager *Manager) *Client 
 		username: username,
 		conn:     conn,
 		manager:  manager,
-		state:    State{X: 0, Y: 0},
+		state:    NewState(),
 
 		egress: make(chan Event),
 	}
