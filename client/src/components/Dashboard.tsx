@@ -26,7 +26,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
     Record<string, { x: number; y: number }>
   >({});
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
-    "ws://localhost:9000/ws",
+    `ws://${process.env.SERVER_HOST ?? "localhost"}:9000/ws`,
     {
       queryParams: { username },
     }
