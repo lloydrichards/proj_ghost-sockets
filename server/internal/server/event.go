@@ -31,18 +31,18 @@ func UpdatePosition(event Event, c *Client) error {
 		return err
 	}
 
-	log.Printf("Update: %s ->    x %d   y %d   delta %d", c.username, update.X, update.Y, update.Delta)
+	log.Printf("Update: %s ->    x %d   y %d", c.username, update.X, update.Y)
 
 	prevPos := Position{X: c.state.X, Y: c.state.Y}
 	curPos := Position{X: float64(update.X), Y: float64(update.Y)}
 
-	c.state.X = curPos.X
-	c.state.Y = curPos.Y
 	vx, vy := velocity(prevPos, curPos, float64(update.Delta))
 	ang := angle(prevPos, curPos)
 	spd := speed(vx, vy)
 	acc := acceleration(c.state.Spd, spd, float64(update.Delta))
 
+	c.state.X = curPos.X
+	c.state.Y = curPos.Y
 	c.state.Vx = vx
 	c.state.Vy = vy
 	c.state.Ang = ang
@@ -59,14 +59,14 @@ type Position struct {
 	X, Y float64
 }
 
-func displacement(prev, curr Position) (dx, dy float64) {
-	dx = curr.X - prev.X
-	dy = curr.Y - prev.Y
+func displacement(prev, cur Position) (dx, dy float64) {
+	dx = cur.X - prev.X
+	dy = cur.Y - prev.Y
 	return
 }
 
-func velocity(prev, curr Position, deltaTime float64) (vx, vy float64) {
-	dx, dy := displacement(prev, curr)
+func velocity(prev, cur Position, deltaTime float64) (vx, vy float64) {
+	dx, dy := displacement(prev, cur)
 	vx = dx / deltaTime
 	vy = dy / deltaTime
 	return
@@ -76,8 +76,8 @@ func speed(vx, vy float64) float64 {
 	return math.Sqrt(vx*vx + vy*vy)
 }
 
-func angle(prev, curr Position) float64 {
-	dx, dy := displacement(prev, curr)
+func angle(prev, cur Position) float64 {
+	dx, dy := displacement(prev, cur)
 	return math.Atan2(dy, dx)
 }
 
