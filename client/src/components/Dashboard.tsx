@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
 import { Cursor } from "./Cursor";
 
@@ -22,6 +22,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState];
 
+  const handleMessages = useCallback(
+    (x: number, y: number) => {
+      sendMessage(
+        JSON.stringify({ type: "update_position", payload: { x, y } })
+      );
+    },
+    [sendMessage]
+  );
+
   return (
     <div>
       <div>
@@ -33,7 +42,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
       </div>
       Welcome, {username}
       <p>{connectionStatus}</p>
-      <Cursor client onMove={(x, y) => sendMessage(JSON.stringify({ x, y }))} />
+      <Cursor client onMove={handleMessages} />
     </div>
   );
 };

@@ -1,26 +1,43 @@
 package server
 
 import (
+	"encoding/json"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
 type ClientList map[*Client]bool
 
+type State struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
 type Client struct {
+	id       uuid.UUID
+	username string
+	state    State
+
+	// websocket connection
 	conn    *websocket.Conn
 	manager *Manager
 
 	// channels for communication
-	egress chan []byte
+	egress chan Event
 }
 
-func NewClient(conn *websocket.Conn, manager *Manager) *Client {
+func NewClient(username string, conn *websocket.Conn, manager *Manager) *Client {
+	id := uuid.New()
 	return &Client{
-		conn:    conn,
-		manager: manager,
-		egress:  make(chan []byte),
+		id:       id,
+		username: username,
+		conn:     conn,
+		manager:  manager,
+		state:    State{X: 0, Y: 0},
+
+		egress: make(chan Event),
 	}
 }
 
@@ -31,7 +48,7 @@ func (c *Client) readMsgs() {
 	}()
 
 	for {
-		msgType, payload, err := c.conn.ReadMessage()
+		_, payload, err := c.conn.ReadMessage()
 
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -40,15 +57,23 @@ func (c *Client) readMsgs() {
 			break
 		}
 
-		for wsClient := range c.manager.Clients {
-			wsClient.egress <- payload
+		var request Event
+
+		err = json.Unmarshal(payload, &request)
+		if err != nil {
+			log.Printf("error unmarshalling Msg: %v", err)
+			continue
 		}
-		log.Println(msgType)
-		log.Println(payload)
+
+		err = c.manager.routeEvent(request, c)
+		if err != nil {
+			log.Printf("error routing Msg: %v", err)
+			continue
+		}
 	}
 }
 
-func (c *Client) writeMsgs() {
+func (c *Client) writeMsg() {
 	defer func() {
 		// cleanup connection
 		c.manager.removeClient(c)
@@ -64,11 +89,16 @@ func (c *Client) writeMsgs() {
 				}
 				return
 			}
-			err := c.conn.WriteMessage(websocket.TextMessage, msg)
+			data, err := json.Marshal(msg)
+			if err != nil {
+				log.Printf("failed to marshal Msg: %v", err)
+				return
+			}
+
+			err = c.conn.WriteMessage(websocket.TextMessage, data)
 			if err != nil {
 				log.Printf("failed to writing Msg: %v", err)
 			}
-			log.Println("msg sent")
 		}
 	}
 }
