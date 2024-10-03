@@ -15,31 +15,22 @@ import (
 	"server/internal/database"
 )
 
-type State struct {
-	X int `json:"x"`
-	Y int `json:"y"`
-}
-type Client struct {
-	ID       uuid.UUID `json:"id"`
-	Username string    `json:"username"`
-	Online   bool      `json:"online"`
-	State
-}
-
 type Server struct {
-	port  int
-	conns map[*websocket.Conn]bool
-	hub   map[uuid.UUID]Client
-	db    database.Service
+	port    int
+	conns   map[*websocket.Conn]bool
+	hub     map[uuid.UUID]Client
+	db      database.Service
+	manager *Manager
 }
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
 	NewServer := &Server{
-		port:  port,
-		conns: make(map[*websocket.Conn]bool),
-		hub:   make(map[uuid.UUID]Client),
-		db:    database.New(),
+		port:    port,
+		conns:   make(map[*websocket.Conn]bool),
+		hub:     make(map[uuid.UUID]Client),
+		db:      database.New(),
+		manager: NewManager(),
 	}
 
 	// Declare Server config
