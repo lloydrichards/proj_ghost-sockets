@@ -6,14 +6,14 @@ function App() {
   const [username, setUsername] = useState<string | null>(null);
 
   return (
-    <main className="h-screen">
-      {!username ? (
-        <>
+    <main className="h-screen flex justify-center">
+      <section className="flex size-full px-8 max-w-screen-sm justify-center">
+        {!username ? (
           <Login onSubmit={setUsername} />
-        </>
-      ) : (
-        <Dashboard username={username} />
-      )}
+        ) : (
+          <Dashboard username={username} />
+        )}
+      </section>
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import useWebSocket, { ReadyState } from "react-use-websocket";
-import { Cursor } from "./Cursor";
+import { Cursor } from "./ui/cursor";
 import { z } from "zod";
 
 type DashboardProps = {
@@ -26,7 +26,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
     Record<string, { x: number; y: number }>
   >({});
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
-    `ws://${process.env.SERVER_HOST ?? "localhost"}:9000/ws`,
+    `ws://${import.meta.env.SERVER_HOST ?? "localhost"}:9000/ws`,
     {
       queryParams: { username },
     }
@@ -66,30 +66,26 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
   );
 
   return (
-    <div>
-      <div>
-        <pre>
-          {lastJsonMessage
-            ? JSON.stringify(lastJsonMessage, null, 2)
-            : "No messages yet"}
-        </pre>
-      </div>
-      Welcome, {username}
-      <p>{connectionStatus}</p>
-      <Cursor client onMove={handleMessages} />
-      {Object.entries(otherCursors).map(([username, { x, y }]) => (
-        <Cursor key={username} x={x} y={y}>
-          <p
-            style={{
-              position: "absolute",
-              top: -16,
-              left: 32,
-              color: "white",
-              fontSize: 16,
-            }}
-          >
-            {username}
-          </p>
+    <div className="w-full flex flex-col justify-between mt-4">
+      <section className="w-full flex justify-between">
+        <h1>Welcome, {username}</h1>
+        <h2>{connectionStatus}</h2>
+      </section>
+      <section className="w-full flex flex-row-reverse mb-4">
+        <ul>
+          {Object.entries(otherCursors).map(([username, { x, y }]) => (
+            <li key={username}>
+              <p>
+                {username} x: {x}, y: {y}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <Cursor client onMove={handleMessages} className="z-50" />
+      {Object.entries(otherCursors).map(([username, { x, y }], idx) => (
+        <Cursor key={username} color={idx as 0} x={x} y={y}>
+          <p className="absolute top-0 left-8 text-foreground">{username}</p>
         </Cursor>
       ))}
     </div>

@@ -1,4 +1,7 @@
 import React from "react";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
 
 type LoginProps = {
   onSubmit: (v: string | null) => void;
@@ -7,15 +10,16 @@ type LoginProps = {
 export const Login: React.FC<LoginProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
+    const username = (
+      e.currentTarget.elements.namedItem("username") as HTMLInputElement
+    ).value;
     onSubmit(username);
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="username">Username</label>
-      <input type="text" id="username" name="username" />
-      <button type="submit">Submit</button>
+    <form onSubmit={handleSubmit} className="flex items-center gap-4 w-full">
+      <Label htmlFor="username">Name</Label>
+      <Input type="text" id="username" placeholder="Enter display name..." />
+      <Button type="submit">Submit</Button>
     </form>
   );
 };
