@@ -114,7 +114,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
                 mood={isNear ? d.mood : undefined}
                 {...d.state}
               >
-                <p>{username}</p>
+                <p>{d.username}</p>
               </Cursor>
             );
           })}
