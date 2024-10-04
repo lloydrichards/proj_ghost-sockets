@@ -25,12 +25,16 @@ type Server struct {
 
 func NewServer() *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
+	db := database.New()
+
+	db.ResetAllSessions()
+
 	NewServer := &Server{
 		port:    port,
 		conns:   make(map[*websocket.Conn]bool),
 		hub:     make(map[uuid.UUID]Client),
-		db:      database.New(),
-		manager: NewManager(),
+		db:      db,
+		manager: NewManager(&db),
 	}
 
 	// Declare Server config

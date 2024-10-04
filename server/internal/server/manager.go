@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"server/internal/database"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -20,17 +21,19 @@ var upgrader = websocket.Upgrader{
 
 type Manager struct {
 	Clients ClientList
+	db      database.Service
 	sync.RWMutex
 
 	handlers map[string]EventHandler
 }
 
-func NewManager() *Manager {
+func NewManager(db *database.Service) *Manager {
 	m := &Manager{
 		Clients:  make(ClientList),
+		db:       *db,
 		handlers: make(map[string]EventHandler),
 	}
-
+	
 	m.setupHandlers()
 
 	return m
@@ -54,6 +57,7 @@ func (m *Manager) initiateWSConnection(c *gin.Context) {
 	log.Printf("New connection from %s\n", username)
 
 	client := NewClient(username, conn, m)
+
 	m.addClient(client)
 
 	// Go Routines
@@ -66,12 +70,23 @@ func (m *Manager) addClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
 
+	m.db.CreateUser(database.User{
+		Name: client.username,
+	})
+
+	m.db.CreateSession(database.Session{
+		ID:       client.id,
+		UserName: client.username,
+	})
+
 	m.Clients[client] = true
 }
 
 func (m *Manager) removeClient(client *Client) {
 	m.Lock()
 	defer m.Unlock()
+
+	m.db.UpdateSession(client.id)
 
 	if _, ok := m.Clients[client]; ok {
 		client.conn.Close()

@@ -10,7 +10,9 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
+	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -23,6 +25,19 @@ type Service interface {
 	// Close terminates the database connection.
 	// It returns an error if the connection cannot be closed.
 	Close() error
+	migrate() error
+
+	// GetUsers returns a list of Users.
+	GetUsers() ([]User, error)
+
+	CreateUser(User User) error
+	UpdateUser(User User) error
+	GetUser(username string) (User, error)
+
+	CreateSession(session Session) error
+	UpdateSession(sessionId uuid.UUID) error
+	GetLatestSession(username string) (Session, error)
+	ResetAllSessions() error
 }
 
 type service struct {
@@ -54,6 +69,9 @@ func New() Service {
 	dbInstance = &service{
 		db: db,
 	}
+	// migrate the database
+	dbInstance.migrate()
+
 	fmt.Println("Connected to database:", database)
 
 	return dbInstance
@@ -127,4 +145,61 @@ func (s *service) Close() error {
 		return err
 	}
 	return db.Close()
+}
+
+func (s *service) GetUsers() ([]User, error) {
+	var users []User
+	result := s.db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
+func (s *service) CreateUser(user User) error {
+	result := s.db.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	}).Create(&user)
+
+	return result.Error
+}
+
+func (s *service) UpdateUser(User User) error {
+	result := s.db.Save(&User)
+	return result.Error
+}
+
+func (s *service) GetUser(username string) (User, error) {
+	var user User
+	result := s.db.Where("name = ?", username).First(&user)
+
+	if result.Error != nil {
+		return User{}, result.Error
+	}
+	return user, nil
+}
+
+func (s *service) CreateSession(session Session) error {
+	result := s.db.Create(&session)
+	return result.Error
+}
+
+func (s *service) UpdateSession(sessionId uuid.UUID) error {
+	result := s.db.Model(&Session{}).Where("id = ?", sessionId).Update("is_active", false)
+	return result.Error
+}
+
+func (s *service) GetLatestSession(username string) (Session, error) {
+	var session Session
+	result := s.db.Where("user_name = ?", username).Order("created_at desc").First(&session)
+
+	if result.Error != nil {
+		return Session{}, result.Error
+	}
+	return session, nil
+}
+
+func (s *service) ResetAllSessions() error {
+	result := s.db.Model(&Session{}).Update("is_active", false)
+	return result.Error
 }

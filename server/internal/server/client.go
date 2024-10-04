@@ -35,6 +35,8 @@ func NewState() State {
 type Client struct {
 	id       uuid.UUID
 	username string
+	color    string
+	mood     string
 	state    State
 
 	// websocket connection
@@ -47,9 +49,17 @@ type Client struct {
 
 func NewClient(username string, conn *websocket.Conn, manager *Manager) *Client {
 	id := uuid.New()
+	user, err := manager.db.GetUser(username)
+
+	if err != nil {
+		log.Printf("error getting user: %v", err)
+	}
+
 	return &Client{
 		id:       id,
 		username: username,
+		color:    user.Color,
+		mood:     user.Mood,
 		conn:     conn,
 		manager:  manager,
 		state:    NewState(),
