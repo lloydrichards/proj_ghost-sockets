@@ -8,7 +8,7 @@ import (
 
 type User struct {
 	Name  string `gorm:"column:name;primaryKey"`
-	Color string `gorm:"column:color;default:blue"`
+	Color int    `gorm:"column:color;default:0"`
 	Mood  string `gorm:"column:mood;default:😀"`
 }
 

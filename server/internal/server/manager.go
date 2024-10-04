@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"golang.org/x/exp/rand"
 )
 
 var upgrader = websocket.Upgrader{
@@ -33,7 +34,7 @@ func NewManager(db *database.Service) *Manager {
 		db:       *db,
 		handlers: make(map[string]EventHandler),
 	}
-	
+
 	m.setupHandlers()
 
 	return m
@@ -71,7 +72,8 @@ func (m *Manager) addClient(client *Client) {
 	defer m.Unlock()
 
 	m.db.CreateUser(database.User{
-		Name: client.username,
+		Name:  client.username,
+		Color: rand.Intn(10),
 	})
 
 	m.db.CreateSession(database.Session{

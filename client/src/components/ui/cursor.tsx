@@ -33,6 +33,7 @@ const cursorVariants = cva("absolute size-6 rounded-full", {
 type CursorProps = {
   onMove?: (x: number, y: number) => void;
   client?: boolean;
+  mood?: ReactNode;
   x?: number;
   y?: number;
   vx?: number;
@@ -44,6 +45,7 @@ type CursorProps = {
 export const Cursor: React.FC<CursorProps> = ({
   onMove,
   client = false,
+  mood,
   x,
   y,
   vx,
@@ -89,6 +91,9 @@ export const Cursor: React.FC<CursorProps> = ({
       <circle r={12} className={cursorVariants({ color, client })}></circle>
       <foreignObject x={16} y={-12} width="100" height="100">
         {children}
+      </foreignObject>
+      <foreignObject x={-8} y={-36} width="100" height="100">
+        {mood}
       </foreignObject>
     </motion.g>
   );

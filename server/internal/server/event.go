@@ -91,6 +91,8 @@ func broadcastState(c *Client) error {
 	for client := range c.manager.Clients {
 		payloadJson[client.id.String()] = map[string]interface{}{
 			"username": client.username,
+			"color":    client.color,
+			"mood":     client.mood,
 			"state":    client.state,
 		}
 	}

@@ -35,7 +35,7 @@ func NewState() State {
 type Client struct {
 	id       uuid.UUID
 	username string
-	color    string
+	color    int
 	mood     string
 	state    State
 

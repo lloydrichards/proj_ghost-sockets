@@ -37,7 +37,7 @@ func (s *Server) healthHandler(c *gin.Context) {
 
 type User struct {
 	Username      string `json:"username"`
-	Color         string `json:"color"`
+	Color         int    `json:"color"`
 	Mood          string `json:"mood"`
 	IsActive      bool   `json:"is_active"`
 	LastSessionId string `json:"last_session_id"`
@@ -111,7 +111,7 @@ func (s *Server) updateUserHandler(c *gin.Context) {
 	}
 
 	// overwrite the fields that are not empty
-	if user.Color != "" {
+	if user.Color != 0 {
 		client.Color = user.Color
 	}
 	if user.Mood != "" {
