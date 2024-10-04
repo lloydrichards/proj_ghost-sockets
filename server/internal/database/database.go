@@ -157,10 +157,7 @@ func (s *service) GetUsers() ([]User, error) {
 }
 
 func (s *service) CreateUser(user User) error {
-	result := s.db.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&user)
-
+	result := s.db.Clauses(clause.OnConflict{DoNothing: true}).Create(&user)
 	return result.Error
 }
 
