@@ -18,9 +18,9 @@ const (
 )
 
 type UpdatePositionEvent struct {
-	X     int `json:"x"`
-	Y     int `json:"y"`
-	Delta int `json:"delta"`
+	X     float64 `json:"x"`
+	Y     float64 `json:"y"`
+	Delta int     `json:"delta"`
 }
 
 func UpdatePosition(event Event, c *Client) error {
@@ -31,10 +31,10 @@ func UpdatePosition(event Event, c *Client) error {
 		return err
 	}
 
-	log.Printf("Update: %s ->    x %d   y %d", c.username, update.X, update.Y)
+	log.Printf("Update: %s ->    x %d   y %d", c.username, int(update.X), int(update.Y))
 
 	prevPos := Position{X: c.state.X, Y: c.state.Y}
-	curPos := Position{X: float64(update.X), Y: float64(update.Y)}
+	curPos := Position{X: update.X, Y: update.Y}
 
 	vx, vy := velocity(prevPos, curPos, float64(update.Delta))
 	ang := angle(prevPos, curPos)

@@ -31,8 +31,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
   const [players, setPlayers] = React.useState<
     Array<z.infer<typeof User> & { id: string }>
   >([]);
+
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
-    `ws://${import.meta.env.SERVER_HOST ?? "localhost"}:9000/ws`,
+    `ws://${import.meta.env.VITE_SERVER_HOST ?? "localhost"}:9000/ws`,
     {
       queryParams: { username },
     }
@@ -75,49 +76,62 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
     [players, username]
   );
   return (
-    <div className="w-full flex flex-col justify-between mt-4">
+    <div className="w-full h-[100dvh] flex flex-col justify-between pt-4">
       <section className="w-full flex justify-between">
         <h1>Welcome, {username}</h1>
         <h2>{connectionStatus}</h2>
       </section>
-      <section className="w-full flex flex-row-reverse mb-4">
-        <ul>
-          {players.map(({ username, state }) => (
-            <li key={username}>
-              <p>
-                {username}
-                {"-> "}
-                {Object.entries(state)
-                  .map(([key, value]) => `${key}: ${value.toFixed(2)}`)
-                  .join("  ")}
-              </p>
-            </li>
-          ))}
-        </ul>
+      <section className="w-full flex flex-row-reverse pb-4">
+        <table className="w-full table-fixed text-left">
+          <thead>
+            <tr>
+              <th>Name</th>
+              {Object.keys(players[0]?.state || {}).map((key) => (
+                <th className="text-right" key={key}>
+                  {key}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {players.map(({ username, state }) => (
+              <tr key={username}>
+                <td>{username}</td>
+                {Object.entries(state).map(([key, value]) => (
+                  <td className="text-right" key={key}>
+                    {value.toFixed(2)}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
-      <svg className="absolute size-full overflow-visible">
-        <Cursor client onMove={handleMessages} className="z-50" />
-        {players
-          .filter((d) => d.username != username)
-          .map((d) => {
-            // check if the cursor is near the current player
-            const isNear =
-              currentPlayer &&
-              Math.hypot(
-                d.state.x - currentPlayer.state.x,
-                d.state.y - currentPlayer.state.y
-              ) < 100;
-            return (
-              <Cursor
-                key={d.id}
-                color={d.color as 0}
-                mood={isNear ? d.mood : undefined}
-                {...d.state}
-              >
-                <p>{d.username}</p>
-              </Cursor>
-            );
-          })}
+      <svg className="absolute left-0 top-0 size-full overflow-visible">
+        <g className="translate-x-1/2 translate-y-1/2">
+          <Cursor client onMove={handleMessages} className="z-50" />
+          {players
+            .filter((d) => d.username != username)
+            .map((d) => {
+              // check if the cursor is near the current player
+              const isNear =
+                currentPlayer &&
+                Math.hypot(
+                  d.state.x - currentPlayer.state.x,
+                  d.state.y - currentPlayer.state.y
+                ) < 100;
+              return (
+                <Cursor
+                  key={d.id}
+                  color={d.color as 0}
+                  mood={isNear ? d.mood : undefined}
+                  {...d.state}
+                >
+                  <p>{d.username}</p>
+                </Cursor>
+              );
+            })}
+        </g>
       </svg>
     </div>
   );
