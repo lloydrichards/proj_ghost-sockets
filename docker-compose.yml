@@ -14,8 +14,6 @@ services:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    ports:
-      - "${DB_PORT}:5432"
     volumes:
       - ./db_volume:/var/lib/postgresql/data
 
@@ -33,7 +31,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_SCHEMA: ${DB_SCHEMA}
     ports:
-      - "${SERVER_PORT}:9000"
+      - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
       database:
         condition: service_healthy
@@ -44,11 +42,13 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        VITE_SERVER_HOST: ${SERVER_HOST}
+        VITE_SERVER_PORT: ${SERVER_PORT}
     environment:
       PORT: ${CLIENT_PORT}
-      SERVER_HOST: ghost-server
     ports:
-      - "${CLIENT_PORT}:3000"
+      - "${CLIENT_PORT}:${CLIENT_PORT}"
     depends_on:
       - server
 
