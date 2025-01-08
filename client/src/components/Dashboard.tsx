@@ -33,8 +33,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
   >([]);
 
   const { sendMessage, lastJsonMessage, readyState } = useWebSocket(
-    `ws://${import.meta.env.VITE_SERVER_HOST ?? "localhost"}:${
-      import.meta.env.VITE_SERVER_PORT ?? "9000"
+    `ws://${
+      import.meta.env.VITE_SERVER_HOST ??
+      `localhost:${import.meta.env.VITE_SERVER_PORT ?? "9000"}`
     }/ws`,
     {
       queryParams: { username },
