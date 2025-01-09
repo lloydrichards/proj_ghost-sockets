@@ -24,7 +24,7 @@ services:
       dockerfile: Dockerfile
     environment:
       PORT: ${SERVER_PORT}
-      DB_HOST: ghost-postgres
+      DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
       DB_DATABASE: ${DB_DATABASE}
       DB_USERNAME: ${DB_USERNAME}
