@@ -45,6 +45,7 @@ services:
       args:
         VITE_SERVER_HOST: ${SERVER_HOST}
         VITE_SERVER_PORT: ${SERVER_PORT}
+        PORT: ${CLIENT_PORT}
     environment:
       PORT: ${CLIENT_PORT}
     ports:

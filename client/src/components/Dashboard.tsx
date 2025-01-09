@@ -50,6 +50,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ username }) => {
         setPlayers(
           Object.entries(payload).map(([id, data]) => ({ id, ...data }))
         );
+      } else {
+        console.error(lastJsonMessage);
       }
     }
   }, [lastJsonMessage, username]);
