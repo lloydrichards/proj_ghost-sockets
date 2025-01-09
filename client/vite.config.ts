@@ -12,6 +12,12 @@ export default defineConfig({
   },
   preview: {
     host: true,
-    port: +(process.env.PORT || 3000),
+    port: +(process.env.PORT || 8080),
+  },
+  server: {
+    port: 8080,
+    strictPort: true,
+    host: true,
+    origin: "http://0.0.0.0:8080",
   },
 });

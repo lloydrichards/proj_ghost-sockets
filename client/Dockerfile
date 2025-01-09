@@ -12,21 +12,12 @@ COPY package.json .
 
 RUN npm install
 
+RUN npm i -g serve
+
 COPY . .
 
 RUN npm run build
 
-FROM node:22-alpine AS runner
+EXPOSE 3000
 
-WORKDIR /app
-
-COPY --from=builder /app/dist ./dist
-
-
-COPY package.json .
-COPY vite.config.ts .
-
-RUN npm install typescript
-
-EXPOSE 8080
-CMD ["npm", "run", "preview"]
+CMD [ "serve", "-s", "dist" ]
